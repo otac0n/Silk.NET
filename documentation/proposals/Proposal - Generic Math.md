@@ -66,9 +66,9 @@ For each vector struct, the following requirements **must** fulfill the followin
   - These operators should function like Transform, but without needed assumptions
 - Define TransformNormal static methods which take a Matrix of higher dimensionality assuming 0 in for all missing components (Vector 2 can use `Matrix2Xn`, `Matrix3Xn`, and `Matrix4Xn`) and return a vector containing the output (type should match the outer type e.g. `Vector2D.Transform(Matrix4X4)` returns `Vector2D`)
 - For types implementing `IBinaryNumber<T>`
-    - `BitwiseAnd`, `BitwiseOr`, and `BitwiseXor` static methods defined between two vectors which returns a vector which has had these operators applied on a component-wise basis.
-    - `BitwiseAnd`, `BitwiseOr`, and `BitwiseXor` static methods operators defined between a vectors and a scalar value that matches the generic type which returns a vector which has had these operators applied on a component-wise basis with the scalar.
-    - `BitwiseNot` static method defined which negates the bits of the vector components. (BitwiseComplement?)
+    - `BitwiseAnd`, `BitwiseOr`, and `ExclusiveOr` static methods defined between two vectors which returns a vector which has had these operators applied on a component-wise basis.
+    - `BitwiseAnd`, `BitwiseOr`, and `ExclusiveOr` static methods operators defined between a vectors and a scalar value that matches the generic type which returns a vector which has had these operators applied on a component-wise basis with the scalar.
+    - `OnesComplement` static method defined which negates the bits of the vector components.
 - A Normalize extension method which divides all components by the length of the vector, when `T` implements `IRootFunctions<T>`
 - A Reflect static method which takes a normal vector and reflects the vector over the normal
 - The following static Vector properties which have the given value for all components
@@ -147,8 +147,7 @@ For each vector struct, the following requirements **must** fulfill the followin
   - `ILogarithmicFunctions<>.Log`, (Memberwise, Memberwise)
   - `ILogarithmicFunctions<>.Log`, (Memberwise, Scalar)
   - `ILogarithmicFunctions<>.LogP1`, (Memberwise)
-  - ~~`ILogarithmicFunctions<>.Log2`, (Memberwise)~~
-    - Provided via `IBinaryNumber<>`, which is present on all builtin types that implement `ILogarithmicFunctions<>`
+  - `ILogarithmicFunctions<>.Log2`, (Memberwise)
   - `ILogarithmicFunctions<>.Log2P1`, (Memberwise)
   - `ILogarithmicFunctions<>.Log10`, (Memberwise)
   - `ILogarithmicFunctions<>.Log10P1`, (Memberwise)
@@ -224,7 +223,7 @@ Matrix structs **must** fulfill the following requirements:
 - Add, subtract, and multiply operators defined with Matricies of the same size
 - Multiply operators defined with compatible matricies, if the output matrix type already exists (AxB * BxC = AxC)
 - Negate Operator defined
-- Implicit conversion to and from the System.Numerics matrix type, if available
+- Explicit conversion to and from the System.Numerics matrix type, if available
 - Invert extension method for square matricies
 - GetDeterminant extension method for square matricies and Matrix3X2, Matrix4X3, and Matrix5X4
 - Transpose extension method
@@ -283,18 +282,16 @@ A Quaternion struct **must** be defined and match the following requirements:
 - Define `+`, `-`, `*`, and `/` between two Quaternions
 - Define `*` with `T` multiplying each component by the scalar value returning a new quaternion
 - Define unary `~`
-- A Dot function which takes another Quaternion and returns its the dotproduct between them
-  - A static implementation of this function **must** be available
+- A static Dot function which takes two Quaternions and returns the dot product between them.
 - A LengthSquared property which returns the dot product of the quaternion with itself
 - A Length property which returns the Square Root of LengthSquared
-- An Invert function inverts the Quaternion
+- An Invert function which inverts the Quaternion in place.
   - a static Inverse function **must** be available but it returns the inverse rather than affecting the original
-- A Normalize function which normalizes the Quaternion
+- A Normalize function which normalizes the Quaternion in place.
   - A static implemenation of this function must be available but returns the normalized Quaternion rather than affecting the original
-- A Concatenate function which takes another Quaternion and concatenates it with this quaternion
+- A Concatenate function which takes another Quaternion and concatenates it with this quaternion in place.
   - A static implementation of this function **must** be available but it returns a new Quaternion rather than affecting the originals
-- A Conjugate function which returns the conjugate of this quaternion
-  - A static implementation of this function **must** be available
+- A static Conjugate function which returns the conjugate of this quaternion.
 - A static CreateFromAxisAngle function which takes in a `Vector3D<T>` and an angle and returns a Quaternion representing that rotation
 - A static CreateFromRotationMatrix function which takes either a Matrix3X3 or Matrix4X4 and returns a Quaternion representing that rotation
 - A static CreateFromYawPitchRoll which takes either each components separately or in a `Vector3D<T>` and outputs a Quaternion representing that rotation
@@ -306,12 +303,14 @@ A Quaternion struct **must** be defined and match the following requirements:
 # Geometric Types
 
 The following Geometric Types are defined:
-- Box
+- Box2
+- Box3
 - Circle
 - Plane
 - Ray2
 - Ray3
-- Rectangle
+- Rect2
+- Rect3
 - Sphere
 
 Each type **must** include the following:
@@ -375,3 +374,12 @@ Each type **must** include the following:
     - We will remove instance extension methods and add them back later if we still want them.
     - We visited Length/LengthSquared as properties instead of .NET
 - Approved notwithstanding instance extension method and Atan2(Memberwise, Scalar) removal
+
+## 19/04/2026
+
+[Video](https://www.youtube.com/live/CUF52it-fSg?si=Tc8WXNG8yWFvTAS6&t=2160)
+
+- We will be consistent with not using infix notation for binary opartors.
+- We agreed to drop the constructors for matrices that take and assume some semantics of some smaller matrix, and will provide them as static methods with descriptive names as the use cases are made clear.
+- We agreed to rename our rect and box types to Box2/Box3 and Rect2/Rect3
+- We affirmed that we will keep the uppercase X in MatrixNXM largely as a clean breakpoint for the eventual deprecation.
